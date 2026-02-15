@@ -16,9 +16,18 @@ async function getArticle(slug: string) {
 
 // Next.js 15+ needs static params for static export
 export async function generateStaticParams() {
+    // 1. Get slugs from Sanity
+    const sanitySlugs = await client.fetch(groq`*[_type == "article" && defined(slug.current)].slug.current`);
+
+    // 2. Get slugs from fallback data
     const { ARTICLES } = await import("@/data/articles");
-    return ARTICLES.map((article) => ({
-        slug: article.slug,
+    const fallbackSlugs = ARTICLES.map(a => a.slug);
+
+    // Combine and deduplicate
+    const allSlugs = [...new Set([...sanitySlugs, ...fallbackSlugs])];
+
+    return allSlugs.map((slug) => ({
+        slug,
     }));
 }
 
