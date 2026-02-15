@@ -14,6 +14,14 @@ async function getArticle(slug: string) {
     );
 }
 
+// Next.js 15+ needs static params for static export
+export async function generateStaticParams() {
+    const { ARTICLES } = await import("@/data/articles");
+    return ARTICLES.map((article) => ({
+        slug: article.slug,
+    }));
+}
+
 // Next.js 15+ uses async params
 export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
