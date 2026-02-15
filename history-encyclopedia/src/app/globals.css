@@ -144,5 +144,5 @@ body::after {
 }
 
 .card-hover {
-  @apply hover:border-primary/40 hover:shadow-[0_0_40px_rgba(230, 193, 122, 0.05)] transition-all duration-700;
+  @apply hover:border-primary/40 hover:shadow-[0_0_40px_rgba(230,193,122,0.05)] transition-all duration-700;
 }
