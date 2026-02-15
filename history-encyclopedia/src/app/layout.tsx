@@ -1,16 +1,15 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, Instrument_Serif } from "next/font/google";
+import { Inter, Crimson_Pro } from "next/font/google"; // Crimson Pro is excellent for long-form reading
 import "./globals.css";
 
-const sans = Plus_Jakarta_Sans({
+const inter = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
   display: 'swap',
 });
 
-const serif = Instrument_Serif({
+const crimson = Crimson_Pro({
   subsets: ["latin"],
-  weight: ["400"],
   variable: "--font-serif",
   display: 'swap',
 });
@@ -26,9 +25,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className="dark scroll-smooth">
       <body
-        className={`${sans.variable} ${serif.variable} antialiased font-sans selection:bg-primary/30`}
+        className={`${inter.variable} ${crimson.variable} antialiased font-sans selection:bg-primary/30 text-foreground`}
       >
         {children}
       </body>
