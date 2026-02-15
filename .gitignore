@@ -1,0 +1,36 @@
+# dependencies
+history-encyclopedia/node_modules/
+/.pnp
+.pnp.*
+.yarn/*
+
+# testing
+history-encyclopedia/coverage/
+
+# next.js
+history-encyclopedia/.next/
+history-encyclopedia/out/
+
+# production
+history-encyclopedia/build/
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files
+.env*
+history-encyclopedia/.env*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+history-encyclopedia/next-env.d.ts

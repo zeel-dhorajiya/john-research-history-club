@@ -1,0 +1,146 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-sans);
+  --font-serif: var(--font-serif);
+}
+
+:root {
+  /* Deep Obsidian & Champagne Gold Palette */
+  --background: #050505;
+  --foreground: #fcfcfc;
+
+  --primary: #d4b886;
+  /* Refined Champagne Gold */
+  --primary-foreground: #080808;
+
+  --secondary: #0e0e0e;
+  --secondary-foreground: #fcfcfc;
+
+  --muted: #121212;
+  --muted-foreground: #a0a09a;
+
+  --accent: #d4b886;
+  --accent-foreground: #080808;
+
+  --destructive: #7f1d1d;
+  --destructive-foreground: #fcfcfc;
+
+  --card: #080808;
+  --card-foreground: #fcfcfc;
+
+  --border: #1a1a1a;
+  --input: #1a1a1a;
+  --ring: #d4b886;
+
+  --radius: 0.5rem;
+  /* Tighter radius for a more professional look */
+
+  /* Custom Glows */
+  --glow-gold: rgba(212, 184, 134, 0.12);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
+  --font-sans: var(--font-sans);
+  --font-serif: var(--font-serif);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  position: relative;
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+/* Luxury Film Grain */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url("https://www.transparenttextures.com/patterns/black-paper.png");
+  opacity: 0.15;
+  pointer-events: none;
+  z-index: 50;
+}
+
+.glass {
+  background: rgba(8, 8, 8, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.text-gradient {
+  background: linear-gradient(180deg, #ffffff 0%, #a0a09a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gold-glow {
+  box-shadow: 0 0 50px var(--glow-gold);
+}
+
+.section-padding {
+  @apply py-24 md:py-48;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-12px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.animate-float {
+  animation: float 8s ease-in-out infinite;
+}
+
+/* Professional Typography Utilities */
+.heading-xl {
+  @apply text-6xl md:text-[9rem] font-serif leading-[0.85] tracking-tight;
+}
+
+.heading-lg {
+  @apply text-4xl md:text-7xl font-serif leading-tight tracking-tight;
+}
+
+.heading-md {
+  @apply text-2xl md:text-4xl font-serif leading-snug;
+}
+
+.text-caption {
+  @apply text-[10px] uppercase tracking-[0.4em] font-bold text-primary/80;
+}
