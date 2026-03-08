@@ -1,0 +1,282 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-accent: var(--accent);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-muted: var(--muted);
+  --color-border: var(--border-color);
+
+  --font-sans: var(--font-outfit);
+}
+
+/* ============================================================
+   JHRC Design Tokens
+   ============================================================ */
+
+:root {
+  /* Light mode */
+  --background: #F7F5F2;
+  --foreground: #111111;
+  --primary: #1E2A38;
+  --accent: #C8A96A;
+  --accent-hover: #b8924d;
+  --surface: #FFFFFF;
+  --surface-hover: #F0EDE8;
+  --muted: #6B7280;
+  --border-color: rgba(30, 42, 56, 0.08);
+
+  /* Shadows - Premium Soft Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.08);
+  --shadow-xl: 0 30px 70px rgba(0, 0, 0, 0.12);
+
+  /* Navbar */
+  --navbar-bg: rgba(247, 245, 242, 0.7);
+  --navbar-border: rgba(30, 42, 56, 0.05);
+
+  /* Radius */
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 20px;
+  --radius-xl: 32px;
+  --radius-full: 9999px;
+}
+
+.dark {
+  --background: #0E1116;
+  --foreground: #F5F5F5;
+  --primary: #C8A96A;
+  --accent: #C8A96A;
+  --accent-hover: #d9bc82;
+  --surface: #161B22;
+  --surface-hover: #1E2530;
+  --muted: #9CA3AF;
+  --border-color: rgba(255, 255, 255, 0.06);
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.4);
+  --shadow-xl: 0 30px 70px rgba(0, 0, 0, 0.5);
+
+  --navbar-bg: rgba(14, 17, 22, 0.7);
+  --navbar-border: rgba(255, 255, 255, 0.05);
+}
+
+/* ============================================================
+   Base Reset & Global Styles
+   ============================================================ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+  overflow-x: hidden;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-outfit), 'Outfit', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.6;
+  transition: background 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+    color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-x: hidden;
+}
+
+/* ============================================================
+   Typography
+   ============================================================ */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  line-height: 1.15;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+/* ============================================================
+   Reading Progress Bar
+   ============================================================ */
+#reading-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 4px;
+  background: var(--accent);
+  z-index: 10000;
+  transition: width 0.1s ease;
+  box-shadow: 0 0 10px var(--accent);
+}
+
+/* ============================================================
+   Custom Scrollbar
+   ============================================================ */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+  border: 2px solid var(--background);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+/* ============================================================
+   Article prose styles
+   ============================================================ */
+.article-prose {
+  font-size: 1.18rem;
+  line-height: 1.85;
+  color: var(--foreground);
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.article-prose h2 {
+  font-size: 2.25rem;
+  margin-top: 4rem;
+  margin-bottom: 1.5rem;
+  color: var(--primary);
+}
+
+.dark .article-prose h2 {
+  color: var(--accent);
+}
+
+.article-prose h3 {
+  font-size: 1.5rem;
+  margin-top: 2.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.article-prose p {
+  margin-bottom: 2rem;
+  opacity: 0.92;
+}
+
+.article-prose blockquote {
+  border-left: 4px solid var(--accent);
+  padding: 2rem;
+  margin: 3.5rem -1rem;
+  background: var(--surface-hover);
+  border-radius: var(--radius-md);
+  font-size: 1.4rem;
+  line-height: 1.6;
+  font-weight: 500;
+  font-style: italic;
+  box-shadow: var(--shadow-sm);
+}
+
+.article-prose figure {
+  margin: 4rem -4rem;
+  width: calc(100% + 8rem);
+}
+
+@media (max-width: 850px) {
+  .article-prose figure {
+    margin: 3rem 0;
+    width: 100%;
+  }
+}
+
+.article-prose img {
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+/* ============================================================
+   Utility Classes
+   ============================================================ */
+
+.hero-gradient-fade {
+  background: linear-gradient(to bottom,
+      transparent 60%,
+      var(--background) 100%);
+}
+
+.hero-overlay {
+  background: linear-gradient(to bottom,
+      rgba(0, 0, 0, 0.4) 0%,
+      rgba(0, 0, 0, 0.2) 50%,
+      rgba(0, 0, 0, 0.7) 100%);
+}
+
+.glass-nav {
+  background: var(--navbar-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--navbar-border);
+}
+
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s cubic-bezier(0.2, 1, 0.3, 1);
+}
+
+.reveal-on-scroll.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Magazine Grid */
+.magazine-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  grid-template-rows: repeat(2, 1fr);
+  gap: 24px;
+}
+
+@media (max-width: 1024px) {
+  .magazine-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+}
+
+.magazine-grid-full {
+  grid-row: span 2;
+}
+
+/* Custom Animations */
+@keyframes soft-reveal {
+  from {
+    opacity: 0;
+    transform: scale(1.05);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-soft-reveal {
+  animation: soft-reveal 1.2s cubic-bezier(0.2, 1, 0.3, 1) forwards;
+}
