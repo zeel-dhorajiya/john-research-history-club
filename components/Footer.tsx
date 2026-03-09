@@ -1,5 +1,11 @@
 import Link from "next/link";
-import { History, Instagram, Twitter, Facebook, ArrowUpRight } from "lucide-react";
+import { History, Instagram, Twitter, Youtube, ArrowUpRight, Github } from "lucide-react";
+
+const socialLinks = [
+    { icon: Instagram, href: "https://www.instagram.com/john_history_club/" },
+    { icon: Twitter, href: "https://x.com/JohnHistoryClub" },
+    { icon: Youtube, href: "https://www.youtube.com/@Smitkumarhirpara" },
+];
 
 const footerLinks = [
     { label: "Home", href: "/" },
@@ -93,26 +99,31 @@ export default function Footer() {
                             We are a community of historians, researchers, and enthusiasts dedicated to preserving the echoes of the past for future generations.
                         </p>
                         <div style={{ display: "flex", gap: "16px" }}>
-                            {[Instagram, Twitter, Facebook].map((Icon, i) => (
-                                <a
-                                    key={i}
-                                    href="#"
-                                    style={{
-                                        width: 40,
-                                        height: 40,
-                                        borderRadius: "50%",
-                                        background: "rgba(255,255,255,0.05)",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        color: "rgba(255,255,255,0.6)",
-                                        transition: "all 0.3s ease"
-                                    }}
-                                    className="hover:bg-[var(--accent)] hover:text-white"
-                                >
-                                    <Icon size={18} />
-                                </a>
-                            ))}
+                            {socialLinks.map((social, i) => {
+                                const Icon = social.icon;
+                                return (
+                                    <Link
+                                        key={i}
+                                        href={social.href}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={{
+                                            width: 40,
+                                            height: 40,
+                                            borderRadius: "50%",
+                                            background: "rgba(255,255,255,0.05)",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            color: "rgba(255,255,255,0.6)",
+                                            transition: "all 0.3s ease"
+                                        }}
+                                        className="hover:bg-[var(--accent)] hover:text-white"
+                                    >
+                                        <Icon size={18} />
+                                    </Link>
+                                );
+                            })}
                         </div>
                     </div>
 
