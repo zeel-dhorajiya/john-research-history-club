@@ -1,11 +1,14 @@
 import { notFound } from "next/navigation";
-import { getArticleBySlug, articles } from "@/lib/data";
-import { ContentBlock } from "@/lib/data";
+import { client } from "@/lib/sanity.client";
+import { articleBySlugQuery, allArticlesQuery } from "@/lib/sanity.queries";
+import { getFallbackArticles } from "@/lib/sanity.fallback";
 import ReadingProgressBar from "@/components/ReadingProgressBar";
+import PortableTextRenderer from "@/components/PortableTextRenderer";
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { Clock, Calendar, ArrowLeft, Bookmark } from "lucide-react";
+import { urlFor } from "@/lib/sanity.image";
 
 interface Params {
     params: Promise<{ slug: string }>;
@@ -13,7 +16,11 @@ interface Params {
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
     const { slug } = await params;
-    const article = getArticleBySlug(slug);
+    let article = await client.fetch(articleBySlugQuery, { slug });
+    if (!article) {
+        article = getFallbackArticles().find(a => a.slug === slug);
+    }
+
     if (!article) return { title: "Not Found – JHRC" };
     return {
         title: `${article.title} – JHRC`,
@@ -21,19 +28,40 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     };
 }
 
-export function generateStaticParams() {
-    return articles.map((a) => ({ slug: a.slug }));
+export async function generateStaticParams() {
+    let articles = await client.fetch(allArticlesQuery);
+    if (articles.length === 0) articles = getFallbackArticles();
+    return articles.map((a: any) => ({ slug: a.slug }));
 }
 
 export default async function ArticlePage({ params }: Params) {
     const { slug } = await params;
-    const article = getArticleBySlug(slug);
+    let article = await client.fetch(articleBySlugQuery, { slug });
+
+    if (!article) {
+        article = getFallbackArticles().find(a => a.slug === slug);
+        // Map local content to simple blocks for the renderer
+        if (article) {
+            article.body = [
+                {
+                    _type: 'block',
+                    style: 'normal',
+                    children: [{ _type: 'span', text: 'This is a fallback preview. Create content in Sanity to see the full article.' }]
+                }
+            ];
+        }
+    }
+
     if (!article) notFound();
 
-    // Extract headings for Table of Contents
-    const headings = article.content
-        .filter((block) => block.type === "heading" && block.level === 2)
-        .map((block) => block.text);
+    const heroImageUrl = article.heroImage ? urlFor(article.heroImage).url() : null;
+
+    // Extract headings for Table of Contents from Portable Text
+    const headings = article.body?.filter((block: any) =>
+        block._type === 'block' && block.style === 'h2'
+    ).map((block: any) =>
+        block.children.map((child: any) => child.text).join('')
+    ) || [];
 
     return (
         <>
@@ -53,14 +81,16 @@ export default async function ArticlePage({ params }: Params) {
                     background: "#000",
                 }}
             >
-                <Image
-                    src={article.image}
-                    alt={article.title}
-                    fill
-                    priority
-                    style={{ objectFit: "cover", opacity: 0.7 }}
-                    sizes="100vw"
-                />
+                {heroImageUrl && (
+                    <Image
+                        src={heroImageUrl}
+                        alt={article.title}
+                        fill
+                        priority
+                        style={{ objectFit: "cover", opacity: 0.7 }}
+                        sizes="100vw"
+                    />
+                )}
                 <div className="hero-overlay" style={{ position: "absolute", inset: 0, zIndex: 1 }} />
                 <div className="hero-gradient-fade" style={{ position: "absolute", inset: 0, zIndex: 2 }} />
 
@@ -166,9 +196,7 @@ export default async function ArticlePage({ params }: Params) {
                             {article.excerpt}
                         </p>
 
-                        {article.content.map((block, i) => (
-                            <ContentBlockRenderer key={i} block={block} />
-                        ))}
+                        <PortableTextRenderer value={article.body} />
                     </div>
 
                     {/* Bottom Nav */}
@@ -236,7 +264,7 @@ export default async function ArticlePage({ params }: Params) {
                         </div>
 
                         <nav style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                            {headings.map((heading, i) => (
+                            {headings.map((heading: string, i: number) => (
                                 <div
                                     key={i}
                                     style={{
@@ -290,92 +318,13 @@ export default async function ArticlePage({ params }: Params) {
             </main>
 
             <style>{`
-        @media (max-width: 1024px) {
-          .article-container {
-            grid-template-columns: 1fr !important;
-          }
-          .hidden { display: none !important; }
-        }
-      `}</style>
+                @media (max-width: 1024px) {
+                  .article-container {
+                    grid-template-columns: 1fr !important;
+                  }
+                  .hidden { display: none !important; }
+                }
+            `}</style>
         </>
     );
-}
-
-function ContentBlockRenderer({ block }: { block: ContentBlock }) {
-    switch (block.type) {
-        case "heading":
-            if (block.level === 2) {
-                return <h2 id={block.text.toLowerCase().replace(/\\s+/g, "-")}>{block.text}</h2>;
-            }
-            return <h3>{block.text}</h3>;
-
-        case "paragraph":
-            return <p>{block.text}</p>;
-
-        case "image":
-            return (
-                <figure>
-                    <div
-                        style={{
-                            position: "relative",
-                            width: "100%",
-                            paddingBottom: "56.25%",
-                            borderRadius: "var(--radius-lg)",
-                            overflow: "hidden",
-                            boxShadow: "var(--shadow-md)",
-                        }}
-                    >
-                        <Image
-                            src={block.src}
-                            alt={block.alt}
-                            fill
-                            style={{ objectFit: "cover" }}
-                            sizes="(max-width: 1200px) 100vw, 800px"
-                        />
-                    </div>
-                    {block.caption && (
-                        <figcaption
-                            style={{
-                                textAlign: "center",
-                                fontSize: "0.85rem",
-                                color: "var(--muted)",
-                                marginTop: "16px",
-                                fontStyle: "italic",
-                            }}
-                        >
-                            {block.caption}
-                        </figcaption>
-                    )}
-                </figure>
-            );
-
-        case "quote":
-            return (
-                <blockquote className="animate-soft-reveal">
-                    &ldquo;{block.text}&rdquo;
-                    {block.author && (
-                        <footer
-                            style={{
-                                fontSize: "0.85rem",
-                                fontStyle: "normal",
-                                fontWeight: 800,
-                                color: "var(--accent)",
-                                marginTop: "16px",
-                                display: "block",
-                                textTransform: "uppercase",
-                                letterSpacing: "0.1em"
-                            }}
-                        >
-                            — {block.author}
-                        </footer>
-                    )}
-                </blockquote>
-            );
-
-        case "divider":
-            return <hr style={{ border: "none", borderTop: "1px solid var(--border-color)", margin: "4rem auto", width: "100px" }} />;
-
-        default:
-            return null;
-    }
 }

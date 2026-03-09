@@ -1,13 +1,12 @@
 import { notFound } from "next/navigation";
-import {
-    getCategoryBySlug,
-    getArticlesByCategory,
-    categories,
-} from "@/lib/data";
+import { client } from "@/lib/sanity.client";
+import { articlesByCategoryQuery, allCategoriesQuery } from "@/lib/sanity.queries";
+import { getFallbackArticles, getFallbackCategories } from "@/lib/sanity.fallback";
 import ArticleCard from "@/components/ArticleCard";
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { urlFor } from "@/lib/sanity.image";
 
 interface Params {
     params: Promise<{ slug: string }>;
@@ -15,34 +14,40 @@ interface Params {
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
     const { slug } = await params;
-    const category = getCategoryBySlug(slug);
+    let categories = await client.fetch(allCategoriesQuery);
+    if (categories.length === 0) categories = getFallbackCategories();
+
+    const category = categories.find((c: any) => c.slug === slug);
+
     if (!category) return { title: "Not Found – JHRC" };
     return {
-        title: `${category.name} – JHRC`,
+        title: `${category.title} – JHRC`,
         description: category.description,
     };
 }
 
-export function generateStaticParams() {
-    return categories.map((c) => ({ slug: c.slug }));
+export async function generateStaticParams() {
+    let categories = await client.fetch(allCategoriesQuery);
+    if (categories.length === 0) categories = getFallbackCategories();
+    return categories.map((c: any) => ({ slug: c.slug }));
 }
-
-// Category banner images
-const bannerImages: Record<string, string> = {
-    "ancient-civilizations": "/hero_ancient_egypt.png",
-    empires: "/hero_roman_empire.png",
-    "war-and-battles": "/hero_warfare.png",
-    archaeology: "/hero_archaeology.png",
-    "historical-figures": "/hero_figures.png",
-};
 
 export default async function CategoryPage({ params }: Params) {
     const { slug } = await params;
-    const category = getCategoryBySlug(slug);
+    let categories = await client.fetch(allCategoriesQuery);
+    if (categories.length === 0) categories = getFallbackCategories();
+
+    const category = categories.find((c: any) => c.slug === slug);
+
     if (!category) notFound();
 
-    const categoryArticles = getArticlesByCategory(slug);
-    const banner = bannerImages[slug] || "/hero_ancient_egypt.png";
+    let categoryArticles = await client.fetch(articlesByCategoryQuery, { categorySlug: slug });
+    if (categoryArticles.length === 0) {
+        categoryArticles = getFallbackArticles().filter(a => a.categorySlug === slug);
+    }
+
+    // Fallback banner logic
+    const banner = "/hero_ancient_egypt.png";
 
     return (
         <>
@@ -78,7 +83,7 @@ export default async function CategoryPage({ params }: Params) {
             >
                 <Image
                     src={banner}
-                    alt={category.name}
+                    alt={category.title}
                     fill
                     priority
                     style={{ objectFit: "cover" }}
@@ -128,7 +133,7 @@ export default async function CategoryPage({ params }: Params) {
                             textShadow: "0 4px 20px rgba(0,0,0,0.4)",
                         }}
                     >
-                        {category.name}
+                        {category.title}
                     </h1>
                     <p
                         style={{
@@ -170,7 +175,7 @@ export default async function CategoryPage({ params }: Params) {
                     </Link>
                     <span>/</span>
                     <span style={{ color: "var(--accent)", fontWeight: 600 }}>
-                        {category.name}
+                        {category.title}
                     </span>
                 </div>
 
@@ -210,7 +215,7 @@ export default async function CategoryPage({ params }: Params) {
                             gap: "24px",
                         }}
                     >
-                        {categoryArticles.map((article) => (
+                        {categoryArticles.map((article: any) => (
                             <ArticleCard key={article.slug} article={article} />
                         ))}
                     </div>
@@ -230,14 +235,14 @@ export default async function CategoryPage({ params }: Params) {
                     </h2>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
                         {categories
-                            .filter((c) => c.slug !== slug)
-                            .map((c) => (
+                            .filter((c: any) => c.slug !== slug)
+                            .map((c: any) => (
                                 <Link
                                     key={c.slug}
                                     href={`/category/${c.slug}`}
                                     className="cat-pill-link"
                                 >
-                                    {c.name}
+                                    {c.title}
                                 </Link>
                             ))}
                     </div>

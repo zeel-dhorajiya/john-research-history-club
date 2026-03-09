@@ -45,6 +45,13 @@
   --radius-lg: 20px;
   --radius-xl: 32px;
   --radius-full: 9999px;
+
+  /* Layout Sync Variables */
+  --nav-height: 72px;
+  --layout-margin: 24px;
+  /* Height = 100vh - (Navbar Top + Navbar Height + Margin below Navbar + Margin below Hero) */
+  --hero-height: calc(100vh - (var(--layout-margin) * 3 + var(--nav-height)));
+  --hero-width: calc(var(--hero-height) * 16 / 9);
 }
 
 .dark {

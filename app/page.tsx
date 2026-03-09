@@ -1,21 +1,30 @@
-"use client";
-
 import HeroVideo from "@/components/HeroVideo";
 import ArticleCard from "@/components/ArticleCard";
 import CategoryCard from "@/components/CategoryCard";
 import NewsletterForm from "@/components/NewsletterForm";
-import {
-  getFeaturedArticles,
-  getLatestArticles,
-  categories,
-} from "@/lib/data";
+import { client } from "@/lib/sanity.client";
+import { allArticlesQuery, allCategoriesQuery } from "@/lib/sanity.queries";
+import { SanityArticle, SanityCategory } from "@/lib/types";
+import { getFallbackArticles, getFallbackCategories } from "@/lib/sanity.fallback";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 
-export default function HomePage() {
-  const featured = getFeaturedArticles();
-  const latest = getLatestArticles(6);
+export const revalidate = 60; // Revalidate every minute
+
+export default async function HomePage() {
+  let articles: SanityArticle[] = await client.fetch(allArticlesQuery);
+  let categories: SanityCategory[] = await client.fetch(allCategoriesQuery);
+
+  // Fallback to dummy data if Sanity is empty
+  if (articles.length === 0) {
+    articles = getFallbackArticles();
+  }
+  if (categories.length === 0) {
+    categories = getFallbackCategories();
+  }
+
+  const featured = articles.filter((a) => (a as any).featured).slice(0, 4);
+  const latest = articles.slice(0, 6);
 
   return (
     <>
@@ -26,34 +35,32 @@ export default function HomePage() {
         id="featured"
         style={{
           maxWidth: "1250px",
-          margin: "0 auto",
-          padding: "100px 24px 0",
+          margin: "80px auto 0",
+          padding: "0 24px",
         }}
       >
-        <SectionHeader title="Editorial Picks" href="/category/ancient-civilizations" />
+        <SectionHeader title="Featured Articles" href="/category/ancient-civilizations" />
 
-        <div className="magazine-grid">
-          {featured.length > 0 && (
-            <div className="magazine-grid-full">
-              <ArticleCard article={featured[0]} featured />
-            </div>
-          )}
-          {featured.slice(1, 3).map((article) => (
-            <ArticleCard key={article.slug} article={article} featured />
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(4, 1fr)",
+            gap: "24px",
+          }}
+          className="featured-grid"
+        >
+          {featured.map((article: any) => (
+            <ArticleCard key={article.slug} article={article} overlay />
           ))}
         </div>
       </section>
 
       {/* Latest Articles Grid */}
-      <motion.section
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true, margin: "-100px" }}
-        transition={{ duration: 1 }}
+      <section
         style={{
           maxWidth: "1250px",
-          margin: "0 auto",
-          padding: "100px 24px 0",
+          margin: "120px auto 0",
+          padding: "0 24px",
         }}
       >
         <SectionHeader title="Latest Discoveries" href="/category/empires" />
@@ -65,39 +72,36 @@ export default function HomePage() {
             gap: "32px",
           }}
         >
-          {latest.map((article) => (
+          {latest.map((article: any) => (
             <ArticleCard key={article.slug} article={article} />
           ))}
         </div>
-      </motion.section>
+      </section>
 
       {/* Categories Explorer */}
-      <motion.section
-        initial={{ opacity: 0, y: 50 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-100px" }}
+      <section
+        id="categories"
         style={{
           maxWidth: "1250px",
-          margin: "0 auto",
-          padding: "120px 24px 120px",
+          margin: "120px auto 120px",
+          padding: "0 24px",
         }}
       >
-        <div style={{ textAlign: "center", marginBottom: "60px" }}>
-          <SectionHeader title="Explore the Eras" center />
-        </div>
+        <SectionHeader title="Explore the Eras" center />
 
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+            gridTemplateColumns: "repeat(4, 1fr)",
             gap: "24px",
           }}
+          className="categories-grid"
         >
-          {categories.map((cat, index) => (
+          {categories.slice(0, 4).map((cat: any, index: number) => (
             <CategoryCard key={cat.slug} category={cat} index={index} />
           ))}
         </div>
-      </motion.section>
+      </section>
 
       {/* Newsletter Experience */}
       <section
@@ -108,7 +112,6 @@ export default function HomePage() {
           overflow: "hidden",
         }}
       >
-        {/* Background decorative element */}
         <div
           style={{
             position: "absolute",
@@ -122,10 +125,7 @@ export default function HomePage() {
           }}
         />
 
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
+        <div
           style={{
             maxWidth: "700px",
             margin: "0 auto",
@@ -178,8 +178,21 @@ export default function HomePage() {
           <div style={{ maxWidth: "500px", margin: "0 auto" }}>
             <NewsletterForm />
           </div>
-        </motion.div>
+        </div>
       </section>
+
+      <style>{`
+        @media (max-width: 1024px) {
+          .featured-grid, .categories-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+          }
+        }
+        @media (max-width: 640px) {
+          .featured-grid, .categories-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
     </>
   );
 }
@@ -197,56 +210,36 @@ function SectionHeader({
     <div
       style={{
         display: "flex",
-        alignItems: "flex-end",
+        alignItems: "center",
         justifyContent: center ? "center" : "space-between",
-        marginBottom: "48px",
-        textAlign: center ? "center" : "left",
+        marginBottom: "40px",
       }}
     >
-      <div style={{ display: "flex", flexDirection: "column", alignItems: center ? "center" : "flex-start" }}>
-        <h2
-          style={{
-            fontSize: "clamp(1.8rem, 4vw, 2.5rem)",
-            fontWeight: 800,
-            letterSpacing: "-0.03em",
-            color: "var(--foreground)",
-            lineHeight: 1,
-          }}
-        >
-          {title}
-        </h2>
-        <motion.div
-          initial={{ width: 0 }}
-          whileInView={{ width: 60 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          style={{
-            height: "4px",
-            background: "var(--accent)",
-            borderRadius: "2px",
-            marginTop: "16px",
-          }}
-        />
-      </div>
+      <h2
+        style={{
+          fontSize: "2rem",
+          fontWeight: 800,
+          color: "var(--foreground)",
+          letterSpacing: "-0.02em",
+        }}
+      >
+        {title}
+      </h2>
 
       {!center && href && (
         <Link
           href={href}
           style={{
-            fontSize: "0.95rem",
+            fontSize: "0.9rem",
             fontWeight: 700,
-            color: "var(--accent)",
+            color: "var(--muted)",
             textDecoration: "none",
             display: "flex",
             alignItems: "center",
             gap: "8px",
-            padding: "8px 0",
           }}
-          className="group"
         >
-          View More
-          <motion.span whileHover={{ x: 5 }} transition={{ duration: 0.2 }}>
-            <ArrowRight size={18} />
-          </motion.span>
+          View All <ArrowRight size={18} />
         </Link>
       )}
     </div>

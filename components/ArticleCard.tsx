@@ -2,19 +2,101 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Article } from "@/lib/data";
+import { SanityArticle } from "@/lib/types";
+import { urlFor } from "@/lib/sanity.image";
 import { motion } from "framer-motion";
 import { Clock, ChevronRight } from "lucide-react";
 
 interface ArticleCardProps {
-    article: Article;
+    article: SanityArticle;
     featured?: boolean;
+    overlay?: boolean;
 }
 
 export default function ArticleCard({
     article,
     featured = false,
+    overlay = false,
 }: ArticleCardProps) {
+    const imageUrl = (article.heroImage && typeof article.heroImage === 'object')
+        ? urlFor(article.heroImage).url()
+        : (article.image || article.heroImage || null);
+
+    // Overlay mode (as seen in the mockup's featured section)
+    if (overlay) {
+        return (
+            <motion.div
+                whileHover={{ y: -10 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                style={{ height: "100%" }}
+            >
+                <Link
+                    href={`/article/${article.slug}`}
+                    style={{
+                        display: "block",
+                        position: "relative",
+                        borderRadius: "32px",
+                        overflow: "hidden",
+                        textDecoration: "none",
+                        height: "100%",
+                        aspectRatio: "3/4",
+                        boxShadow: "var(--shadow-lg)",
+                        background: "#000",
+                    }}
+                    className="group"
+                >
+                    <motion.div
+                        style={{ position: "absolute", inset: 0 }}
+                        whileHover={{ scale: 1.1 }}
+                        transition={{ duration: 0.8 }}
+                    >
+                        {imageUrl && (
+                            <Image
+                                src={imageUrl}
+                                alt={article.title}
+                                fill
+                                style={{ objectFit: "cover", opacity: 0.9 }}
+                                sizes="(max-width: 768px) 100vw, 25vw"
+                            />
+                        )}
+                    </motion.div>
+
+                    <div
+                        style={{
+                            position: "absolute",
+                            inset: 0,
+                            background: "linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.2) 60%, transparent 100%)",
+                            zIndex: 2,
+                        }}
+                    />
+
+                    <div
+                        style={{
+                            position: "absolute",
+                            bottom: "32px",
+                            left: "24px",
+                            right: "24px",
+                            zIndex: 3,
+                        }}
+                    >
+                        <h3
+                            style={{
+                                color: "white",
+                                fontWeight: 800,
+                                fontSize: "1.25rem",
+                                lineHeight: 1.2,
+                                letterSpacing: "-0.02em",
+                            }}
+                        >
+                            {article.title}
+                        </h3>
+                    </div>
+                </Link>
+            </motion.div>
+        );
+    }
+
+    // Large Featured mode (Original first featured)
     if (featured) {
         return (
             <motion.div
@@ -27,7 +109,7 @@ export default function ArticleCard({
                     style={{
                         display: "block",
                         position: "relative",
-                        borderRadius: "var(--radius-lg)",
+                        borderRadius: "32px",
                         overflow: "hidden",
                         textDecoration: "none",
                         height: "100%",
@@ -37,22 +119,22 @@ export default function ArticleCard({
                     }}
                     className="group"
                 >
-                    {/* Background image */}
                     <motion.div
                         style={{ position: "absolute", inset: 0 }}
                         whileHover={{ scale: 1.05 }}
                         transition={{ duration: 0.8 }}
                     >
-                        <Image
-                            src={article.image}
-                            alt={article.title}
-                            fill
-                            style={{ objectFit: "cover", opacity: 0.8 }}
-                            sizes="(max-width: 1200px) 100vw, 50vw"
-                        />
+                        {imageUrl && (
+                            <Image
+                                src={imageUrl}
+                                alt={article.title}
+                                fill
+                                style={{ objectFit: "cover", opacity: 0.8 }}
+                                sizes="(max-width: 1200px) 100vw, 50vw"
+                            />
+                        )}
                     </motion.div>
 
-                    {/* Gradient overlay */}
                     <div
                         style={{
                             position: "absolute",
@@ -62,7 +144,6 @@ export default function ArticleCard({
                         }}
                     />
 
-                    {/* Content */}
                     <div
                         style={{
                             position: "absolute",
@@ -74,8 +155,6 @@ export default function ArticleCard({
                         }}
                     >
                         <motion.span
-                            initial={{ opacity: 0, x: -10 }}
-                            whileInView={{ opacity: 1, x: 0 }}
                             style={{
                                 display: "inline-block",
                                 padding: "6px 14px",
@@ -87,7 +166,6 @@ export default function ArticleCard({
                                 letterSpacing: "0.1em",
                                 textTransform: "uppercase",
                                 marginBottom: "20px",
-                                boxShadow: "0 4px 12px rgba(200,169,106,0.3)",
                             }}
                         >
                             {article.category}
@@ -140,6 +218,7 @@ export default function ArticleCard({
         );
     }
 
+    // Standard List mode
     return (
         <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -154,18 +233,17 @@ export default function ArticleCard({
                 style={{
                     display: "flex",
                     flexDirection: "column",
-                    borderRadius: "var(--radius-lg)",
+                    borderRadius: "24px",
                     overflow: "hidden",
                     textDecoration: "none",
                     background: "var(--surface)",
                     border: "1px solid var(--border-color)",
                     boxShadow: "var(--shadow-md)",
                     height: "100%",
-                    transition: "border-color 0.3s ease, box-shadow 0.3s ease",
+                    transition: "all 0.3s ease",
                 }}
                 className="hover:border-[var(--accent)] hover:shadow-[var(--shadow-lg)] group"
             >
-                {/* Image */}
                 <div
                     style={{
                         position: "relative",
@@ -178,43 +256,18 @@ export default function ArticleCard({
                         whileHover={{ scale: 1.1 }}
                         transition={{ duration: 0.6 }}
                     >
-                        <Image
-                            src={article.image}
-                            alt={article.title}
-                            fill
-                            style={{ objectFit: "cover" }}
-                            sizes="(max-width: 768px) 100vw, 33vw"
-                        />
+                        {imageUrl && (
+                            <Image
+                                src={imageUrl}
+                                alt={article.title}
+                                fill
+                                style={{ objectFit: "cover" }}
+                                sizes="(max-width: 768px) 100vw, 33vw"
+                            />
+                        )}
                     </motion.div>
-
-                    <div
-                        style={{
-                            position: "absolute",
-                            top: "16px",
-                            left: "16px",
-                            zIndex: 2,
-                        }}
-                    >
-                        <span
-                            style={{
-                                padding: "5px 12px",
-                                borderRadius: "var(--radius-full)",
-                                background: "rgba(0,0,0,0.6)",
-                                backdropFilter: "blur(8px)",
-                                color: "var(--accent)",
-                                fontSize: "0.65rem",
-                                fontWeight: 800,
-                                letterSpacing: "0.08em",
-                                textTransform: "uppercase",
-                                border: "1px solid rgba(200,169,106,0.3)",
-                            }}
-                        >
-                            {article.category}
-                        </span>
-                    </div>
                 </div>
 
-                {/* Content */}
                 <div style={{ padding: "24px", display: "flex", flexDirection: "column", flex: 1 }}>
                     <h3
                         style={{
@@ -224,7 +277,6 @@ export default function ArticleCard({
                             color: "var(--foreground)",
                             letterSpacing: "-0.02em",
                             marginBottom: "12px",
-                            flex: "none",
                         }}
                     >
                         {article.title}
@@ -252,7 +304,6 @@ export default function ArticleCard({
                             justifyContent: "space-between",
                             paddingTop: "16px",
                             borderTop: "1px solid var(--border-color)",
-                            marginTop: "auto",
                         }}
                     >
                         <div

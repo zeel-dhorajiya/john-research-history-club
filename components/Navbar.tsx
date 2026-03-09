@@ -31,19 +31,19 @@ export default function Navbar() {
             <nav
                 style={{
                     position: "fixed",
-                    top: scrolled ? "12px" : "24px",
+                    top: "var(--layout-margin)",
                     left: "50%",
                     transform: "translateX(-50%)",
                     zIndex: 1000,
-                    width: "min(calc(100% - 32px), 1200px)",
-                    borderRadius: scrolled ? "var(--radius-xl)" : "var(--radius-lg)",
-                    background: scrolled ? "var(--navbar-bg)" : "rgba(0,0,0,0.15)",
-                    backdropFilter: scrolled ? "blur(20px)" : "blur(8px)",
-                    WebkitBackdropFilter: scrolled ? "blur(20px)" : "blur(8px)",
-                    border: scrolled ? "1px solid var(--navbar-border)" : "1px solid rgba(255,255,255,0.1)",
-                    boxShadow: scrolled ? "var(--shadow-lg)" : "none",
-                    transition: "all 0.5s cubic-bezier(0.2, 1, 0.3, 1)",
-                    padding: "0 24px",
+                    width: "min(var(--hero-width), calc(100vw - 48px))",
+                    borderRadius: "24px",
+                    background: "var(--navbar-bg)",
+                    backdropFilter: "blur(32px)",
+                    WebkitBackdropFilter: "blur(32px)",
+                    border: "1px solid var(--navbar-border)",
+                    boxShadow: "var(--shadow-lg)",
+                    transition: "all 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
+                    padding: "0 32px",
                 }}
             >
                 <div
@@ -51,8 +51,8 @@ export default function Navbar() {
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "space-between",
-                        height: scrolled ? "64px" : "72px",
-                        transition: "height 0.5s cubic-bezier(0.2, 1, 0.3, 1)",
+                        height: "var(--nav-height)",
+                        transition: "height 0.5s ease",
                     }}
                 >
                     {/* Logo */}
@@ -85,7 +85,7 @@ export default function Navbar() {
                                     fontWeight: 900,
                                     fontSize: "1.05rem",
                                     letterSpacing: "-0.02em",
-                                    color: scrolled ? "var(--foreground)" : "white",
+                                    color: "var(--foreground)",
                                     lineHeight: 1,
                                 }}
                             >
@@ -94,7 +94,7 @@ export default function Navbar() {
                             <div
                                 style={{
                                     fontSize: "0.55rem",
-                                    color: scrolled ? "var(--muted)" : "rgba(255,255,255,0.6)",
+                                    color: "var(--muted)",
                                     letterSpacing: "0.15em",
                                     textTransform: "uppercase",
                                     fontWeight: 700,
@@ -123,7 +123,7 @@ export default function Navbar() {
                                     borderRadius: "var(--radius-full)",
                                     fontSize: "0.88rem",
                                     fontWeight: 600,
-                                    color: scrolled ? "var(--foreground)" : "rgba(255,255,255,0.9)",
+                                    color: "var(--foreground)",
                                     textDecoration: "none",
                                     transition: "all 0.3s ease",
                                 }}
@@ -145,7 +145,7 @@ export default function Navbar() {
                                 background: "transparent",
                                 border: "none",
                                 cursor: "pointer",
-                                color: scrolled ? "var(--foreground)" : "white",
+                                color: "var(--foreground)",
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
@@ -170,7 +170,7 @@ export default function Navbar() {
                                 background: "transparent",
                                 border: "none",
                                 cursor: "pointer",
-                                color: scrolled ? "var(--foreground)" : "white",
+                                color: "var(--foreground)",
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",

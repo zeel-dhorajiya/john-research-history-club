@@ -32,6 +32,8 @@ export const metadata: Metadata = {
   },
 };
 
+import LayoutWrapper from "@/components/LayoutWrapper";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -41,9 +43,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${outfit.variable} antialiased`}>
         <ThemeProvider>
-          <Navbar />
-          <main>{children}</main>
-          <Footer />
+          <LayoutWrapper>
+            {children}
+          </LayoutWrapper>
         </ThemeProvider>
       </body>
     </html>
