@@ -19,7 +19,7 @@ interface CategoryCardProps {
 }
 
 export default function CategoryCard({ category, index = 0 }: CategoryCardProps) {
-    const Icon = iconMap[category.icon] || User;
+    const Icon = (category.icon && iconMap[category.icon]) || User;
 
     return (
         <motion.div
