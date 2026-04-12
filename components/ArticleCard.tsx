@@ -32,6 +32,7 @@ export default function ArticleCard({
             >
                 <Link
                     href={`/article/${article.slug}`}
+                    className="group article-card-overlay"
                     style={{
                         display: "block",
                         position: "relative",
@@ -39,11 +40,9 @@ export default function ArticleCard({
                         overflow: "hidden",
                         textDecoration: "none",
                         height: "100%",
-                        aspectRatio: "3/4",
                         boxShadow: "var(--shadow-lg)",
                         background: "#000",
                     }}
-                    className="group"
                 >
                     <motion.div
                         style={{ position: "absolute", inset: 0 }}
@@ -71,6 +70,7 @@ export default function ArticleCard({
                     />
 
                     <div
+                        className="article-card-content"
                         style={{
                             position: "absolute",
                             bottom: "32px",
@@ -80,10 +80,10 @@ export default function ArticleCard({
                         }}
                     >
                         <h3
+                            className="article-card-title"
                             style={{
                                 color: "white",
                                 fontWeight: 800,
-                                fontSize: "1.25rem",
                                 lineHeight: 1.2,
                                 letterSpacing: "-0.02em",
                             }}
@@ -92,6 +92,33 @@ export default function ArticleCard({
                         </h3>
                     </div>
                 </Link>
+
+                <style>{`
+                    .article-card-overlay {
+                        aspect-ratio: 3/4;
+                        width: 100%;
+                    }
+                    .article-card-title {
+                        font-size: 1.25rem;
+                    }
+
+                    @media (max-width: 640px) {
+                        .article-card-overlay {
+                            aspect-ratio: 4/3 !important;
+                            border-radius: 24px !important;
+                            min-height: 240px;
+                        }
+                        .article-card-content {
+                            bottom: 16px !important;
+                            left: 16px !important;
+                            right: 16px !important;
+                        }
+                        .article-card-title {
+                            font-size: 0.95rem !important;
+                            text-align: center;
+                        }
+                    }
+                `}</style>
             </motion.div>
         );
     }

@@ -49,8 +49,8 @@
   /* Layout Sync Variables */
   --nav-height: 72px;
   --layout-margin: 24px;
-  /* Height = 100vh - (Navbar Top + Navbar Height + Margin below Navbar + Margin below Hero) */
-  --hero-height: calc(100vh - (var(--layout-margin) * 3 + var(--nav-height)));
+  /* Height = 100vh - (Navbar Height + Margin above/below Navbar) */
+  --hero-height: calc(100vh - (var(--nav-height) + var(--layout-margin) * 3));
   --hero-width: calc(var(--hero-height) * 16 / 9);
 }
 

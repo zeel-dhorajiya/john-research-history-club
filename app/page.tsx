@@ -23,7 +23,13 @@ export default async function HomePage() {
     categories = getFallbackCategories();
   }
 
-  const featured = articles.filter((a) => (a as any).featured).slice(0, 4);
+  let featured = articles.filter((a) => (a as any).featured).slice(0, 4);
+  
+  // If no articles are explicitly marked as featured, just show the latest 4
+  if (featured.length === 0) {
+    featured = articles.slice(0, 4);
+  }
+
   const latest = articles.slice(0, 6);
 
   return (
@@ -191,6 +197,13 @@ export default async function HomePage() {
           .featured-grid, .categories-grid {
             grid-template-columns: 1fr !important;
           }
+          .section-title {
+            font-size: 1.5rem !important;
+          }
+          section {
+            margin-top: 60px !important;
+            padding: 0 16px !important;
+          }
         }
       `}</style>
     </>
@@ -212,10 +225,11 @@ function SectionHeader({
         display: "flex",
         alignItems: "center",
         justifyContent: center ? "center" : "space-between",
-        marginBottom: "40px",
+        marginBottom: "32px",
       }}
     >
       <h2
+        className="section-title"
         style={{
           fontSize: "2rem",
           fontWeight: 800,

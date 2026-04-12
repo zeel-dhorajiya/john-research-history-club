@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import ThemeToggle from "./ThemeToggle";
 import { motion, AnimatePresence } from "framer-motion";
@@ -15,44 +15,112 @@ const navLinks = [
 ];
 
 export default function Navbar() {
-    const [scrolled, setScrolled] = useState(false);
+    const [offsetY, setOffsetY] = useState(0);
     const [menuOpen, setMenuOpen] = useState(false);
     const [searchOpen, setSearchOpen] = useState(false);
-    const [searchQuery, setSearchQuery] = useState("");
+
+    const lastScrollY = useRef(0);
+    const NAV_TOTAL_HEIGHT = 120; // Enough to cover nav + safe area
 
     useEffect(() => {
-        const onScroll = () => setScrolled(window.scrollY > 80);
+        const onScroll = () => {
+            const currentY = window.scrollY;
+            const deltaY = currentY - lastScrollY.current;
+
+            // Close menu/search on scroll
+            if (Math.abs(deltaY) > 5) {
+                setMenuOpen(false);
+                setSearchOpen(false);
+            }
+
+            setOffsetY((prev) => {
+                let newOffset = prev;
+                
+                if (currentY <= 0) {
+                    return 0; // Always show at very top
+                }
+
+                // Swapped: Subtract delta to make Scroll DOWN hide and Scroll UP show
+                newOffset -= deltaY; 
+                
+                // Clamp between -NAV_TOTAL_HEIGHT and 0
+                return Math.min(0, Math.max(-NAV_TOTAL_HEIGHT, newOffset));
+            });
+
+            lastScrollY.current = currentY;
+        };
+        
+        // Close menu/search on scroll or outside click
+        const handleClickOutside = (e: MouseEvent) => {
+            if (menuOpen || searchOpen) {
+                // We'll use a backdrop instead for better mobile behavior, 
+                // but this listener helps for desktop edge cases.
+            }
+        };
+
         window.addEventListener("scroll", onScroll, { passive: true });
         return () => window.removeEventListener("scroll", onScroll);
     }, []);
 
     return (
         <>
-            <nav
+            {/* Backdrop for outside click/touch */}
+            <AnimatePresence>
+                {(menuOpen || searchOpen) && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => {
+                            setMenuOpen(false);
+                            setSearchOpen(false);
+                        }}
+                        style={{
+                            position: "fixed",
+                            inset: 0,
+                            background: "rgba(0,0,0,0.4)",
+                            backdropFilter: "blur(4px)",
+                            zIndex: 999,
+                        }}
+                    />
+                )}
+            </AnimatePresence>
+
+            {/* ── Scroll-reveal navbar ── */}
+            <motion.nav
+                initial={false}
+                animate={{
+                    y: offsetY,
+                    opacity: 1, // Keep it solid while sliding
+                }}
+                transition={{ 
+                    y: { type: "tween", ease: "linear", duration: 0 },
+                    opacity: { duration: 0.35 }
+                }}
                 style={{
                     position: "fixed",
-                    top: "var(--layout-margin)",
-                    left: "50%",
-                    transform: "translateX(-50%)",
+                    top: 0,
+                    left: 0,
+                    right: 0,
                     zIndex: 1000,
-                    width: "min(var(--hero-width), calc(100vw - 48px))",
-                    borderRadius: "24px",
                     background: "var(--navbar-bg)",
                     backdropFilter: "blur(32px)",
                     WebkitBackdropFilter: "blur(32px)",
-                    border: "1px solid var(--navbar-border)",
-                    boxShadow: "var(--shadow-lg)",
-                    transition: "all 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
-                    padding: "0 32px",
+                    borderBottom: "1px solid var(--navbar-border)",
+                    boxShadow: "var(--shadow-md)",
+                    padding: "0 clamp(16px, 4vw, 40px)",
+                    // Push content below safe area (notch / status bar)
+                    paddingTop: "env(safe-area-inset-top, 0px)",
                 }}
             >
                 <div
                     style={{
+                        maxWidth: "1400px",
+                        margin: "0 auto",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "space-between",
                         height: "var(--nav-height)",
-                        transition: "height 0.5s ease",
                     }}
                 >
                     {/* Logo */}
@@ -63,27 +131,27 @@ export default function Navbar() {
                             alignItems: "center",
                             gap: "12px",
                             textDecoration: "none",
+                            flexShrink: 0,
                         }}
                     >
                         <div
                             style={{
-                                width: 38,
-                                height: 38,
+                                width: 36,
+                                height: 36,
                                 borderRadius: "10px",
                                 background: "var(--accent)",
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
-                                boxShadow: scrolled ? "none" : "0 0 20px rgba(200,169,106,0.3)",
                             }}
                         >
-                            <History size={20} color="white" strokeWidth={2.5} />
+                            <History size={18} color="white" strokeWidth={2.5} />
                         </div>
                         <div className="hidden sm:block">
                             <div
                                 style={{
                                     fontWeight: 900,
-                                    fontSize: "1.05rem",
+                                    fontSize: "1rem",
                                     letterSpacing: "-0.02em",
                                     color: "var(--foreground)",
                                     lineHeight: 1,
@@ -106,12 +174,14 @@ export default function Navbar() {
                         </div>
                     </Link>
 
-                    {/* Desktop Links */}
+                    {/* Desktop Links — centered */}
                     <div
                         className="hidden lg:flex"
                         style={{
                             alignItems: "center",
-                            gap: "8px",
+                            gap: "4px",
+                            flex: 1,
+                            justifyContent: "center",
                         }}
                     >
                         {navLinks.map((link) => (
@@ -119,13 +189,14 @@ export default function Navbar() {
                                 key={link.href}
                                 href={link.href}
                                 style={{
-                                    padding: "8px 16px",
+                                    padding: "8px 14px",
                                     borderRadius: "var(--radius-full)",
                                     fontSize: "0.88rem",
                                     fontWeight: 600,
                                     color: "var(--foreground)",
                                     textDecoration: "none",
-                                    transition: "all 0.3s ease",
+                                    transition: "all 0.2s ease",
+                                    whiteSpace: "nowrap",
                                 }}
                                 className="hover:!text-[var(--accent)] hover:bg-[var(--surface-hover)]"
                             >
@@ -134,10 +205,11 @@ export default function Navbar() {
                         ))}
                     </div>
 
-                    {/* Actions */}
-                    <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                    {/* Right actions */}
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
                         <button
                             onClick={() => setSearchOpen(!searchOpen)}
+                            aria-label="Search"
                             style={{
                                 width: 40,
                                 height: 40,
@@ -149,7 +221,7 @@ export default function Navbar() {
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
-                                transition: "all 0.3s ease",
+                                transition: "all 0.2s ease",
                             }}
                             className="hover:bg-[var(--surface-hover)] hover:!text-[var(--accent)]"
                         >
@@ -160,9 +232,11 @@ export default function Navbar() {
                             <ThemeToggle />
                         </div>
 
+                        {/* Mobile hamburger */}
                         <button
                             onClick={() => setMenuOpen(!menuOpen)}
                             className="lg:hidden"
+                            aria-label="Toggle menu"
                             style={{
                                 width: 40,
                                 height: 40,
@@ -176,7 +250,7 @@ export default function Navbar() {
                                 justifyContent: "center",
                             }}
                         >
-                            <Menu size={24} />
+                            {menuOpen ? <X size={22} /> : <Menu size={22} />}
                         </button>
                     </div>
                 </div>
@@ -188,23 +262,23 @@ export default function Navbar() {
                             initial={{ height: 0, opacity: 0 }}
                             animate={{ height: "auto", opacity: 1 }}
                             exit={{ height: 0, opacity: 0 }}
-                            style={{ overflow: "hidden" }}
+                            transition={{ duration: 0.2 }}
+                            style={{ overflow: "hidden", maxWidth: "1400px", margin: "0 auto" }}
                         >
-                            <div style={{ paddingBottom: "20px" }}>
+                            <div style={{ paddingBottom: "16px" }}>
                                 <input
                                     type="text"
                                     placeholder="Search historical topics..."
                                     autoFocus
                                     style={{
                                         width: "100%",
-                                        padding: "16px 20px",
+                                        padding: "14px 20px",
                                         borderRadius: "var(--radius-md)",
                                         border: "1px solid var(--border-color)",
-                                        background: scrolled ? "var(--surface)" : "rgba(255,255,255,0.05)",
-                                        color: scrolled ? "var(--foreground)" : "white",
+                                        background: "var(--surface)",
+                                        color: "var(--foreground)",
                                         fontSize: "1rem",
                                         outline: "none",
-                                        boxShadow: "inset 0 2px 4px rgba(0,0,0,0.05)",
                                     }}
                                 />
                             </div>
@@ -219,16 +293,17 @@ export default function Navbar() {
                             initial={{ height: 0, opacity: 0 }}
                             animate={{ height: "auto", opacity: 1 }}
                             exit={{ height: 0, opacity: 0 }}
-                            style={{ overflow: "hidden" }}
+                            transition={{ duration: 0.25 }}
+                            style={{ overflow: "hidden", maxWidth: "1400px", margin: "0 auto" }}
                         >
                             <div
                                 style={{
                                     display: "flex",
                                     flexDirection: "column",
-                                    gap: "8px",
-                                    paddingBottom: "24px",
+                                    gap: "4px",
+                                    paddingBottom: "20px",
                                     borderTop: "1px solid var(--border-color)",
-                                    paddingTop: "16px",
+                                    paddingTop: "12px",
                                 }}
                             >
                                 {navLinks.map((link) => (
@@ -241,7 +316,7 @@ export default function Navbar() {
                                             borderRadius: "var(--radius-md)",
                                             fontSize: "1rem",
                                             fontWeight: 600,
-                                            color: scrolled ? "var(--foreground)" : "white",
+                                            color: "var(--foreground)",
                                             textDecoration: "none",
                                         }}
                                         className="hover:bg-[var(--surface-hover)] hover:!text-[var(--accent)]"
@@ -253,15 +328,12 @@ export default function Navbar() {
                         </motion.div>
                     )}
                 </AnimatePresence>
-            </nav>
+            </motion.nav>
 
             <style>{`
         .hidden { display: none !important; }
-        @media (min-sm) { .sm\\:block { display: block !important; } }
-        @media (min-lg) { .lg\\:flex { display: flex !important; } .lg\\:hidden { display: none !important; } }
-        
-        @media (min-width: 640px) { .sm\\:block { display: block !important; } }
-        @media (min-width: 1024px) { .lg\\:flex { display: flex !important; } .lg\\:hidden { display: none !important; } }
+        @media (min-width: 640px)  { .sm\\:block { display: block !important; } }
+        @media (min-width: 1024px) { .lg\\:flex  { display: flex !important;  } .lg\\:hidden { display: none !important; } }
       `}</style>
         </>
     );

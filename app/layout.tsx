@@ -32,6 +32,13 @@ export const metadata: Metadata = {
   },
 };
 
+import type { Viewport } from "next";
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover", // enables env(safe-area-inset-*) on notched/status-bar devices
+};
+
 import LayoutWrapper from "@/components/LayoutWrapper";
 
 export default function RootLayout({
