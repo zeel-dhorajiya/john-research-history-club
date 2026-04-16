@@ -39,7 +39,10 @@ export const viewport: Viewport = {
   viewportFit: "cover", // enables env(safe-area-inset-*) on notched/status-bar devices
 };
 
+import SmoothScrolling from "@/components/SmoothScrolling";
 import LayoutWrapper from "@/components/LayoutWrapper";
+
+import NextTopLoader from 'nextjs-toploader';
 
 export default function RootLayout({
   children,
@@ -50,9 +53,18 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${outfit.variable} antialiased`}>
         <ThemeProvider>
-          <LayoutWrapper>
-            {children}
-          </LayoutWrapper>
+          <NextTopLoader 
+            color="var(--accent)" 
+            showSpinner={false} 
+            height={3} 
+            shadow="0 0 10px var(--accent),0 0 5px var(--accent)" 
+            zIndex={1600} 
+          />
+          <SmoothScrolling>
+            <LayoutWrapper>
+              {children}
+            </LayoutWrapper>
+          </SmoothScrolling>
         </ThemeProvider>
       </body>
     </html>

@@ -9,6 +9,9 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { Clock, Calendar, ArrowLeft, Bookmark } from "lucide-react";
 import { urlFor } from "@/lib/sanity.image";
+import InteractiveImage from "@/components/InteractiveImage";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import ArticleCard from "@/components/ArticleCard";
 
 interface Params {
     params: Promise<{ slug: string }>;
@@ -54,17 +57,24 @@ export default async function ArticlePage({ params }: Params) {
 
     if (!article) notFound();
 
+    // Fetch related articles
+    const relatedArticles = (await client.fetch(allArticlesQuery))
+        .filter((a: any) => a.slug !== slug)
+        .slice(0, 3);
+
     const heroImageUrl = article.heroImage ? urlFor(article.heroImage).url() : null;
 
     // Extract headings for Table of Contents from Portable Text
-    const headings = article.body?.filter((block: any) =>
+    const tocItems = article.body?.filter((block: any) =>
         block._type === 'block' && block.style === 'h2'
-    ).map((block: any) =>
-        block.children.map((child: any) => child.text).join('')
-    ) || [];
+    ).map((block: any) => {
+        const text = block.children.map((child: any) => child.text).join('');
+        const id = text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
+        return { text, id };
+    }) || [];
 
     return (
-        <>
+        <div style={{ background: 'var(--background)' }}>
             <ReadingProgressBar />
 
             {/* Hero Header */}
@@ -82,17 +92,16 @@ export default async function ArticlePage({ params }: Params) {
                 }}
             >
                 {heroImageUrl && (
-                    <Image
-                        src={heroImageUrl}
-                        alt={article.title}
-                        fill
-                        priority
-                        style={{ objectFit: "cover", opacity: 0.7 }}
-                        sizes="100vw"
-                    />
+                    <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
+                        <InteractiveImage
+                            src={heroImageUrl}
+                            alt={article.title}
+                            className="hero-interactive-image"
+                        />
+                    </div>
                 )}
-                <div className="hero-overlay" style={{ position: "absolute", inset: 0, zIndex: 1 }} />
-                <div className="hero-gradient-fade" style={{ position: "absolute", inset: 0, zIndex: 2 }} />
+                <div className="hero-overlay" style={{ position: "absolute", inset: 0, zIndex: 1, pointerEvents: 'none' }} />
+                <div className="hero-gradient-fade" style={{ position: "absolute", inset: 0, zIndex: 2, pointerEvents: 'none' }} />
 
                 <div
                     style={{
@@ -101,6 +110,7 @@ export default async function ArticlePage({ params }: Params) {
                         maxWidth: "1000px",
                         padding: "0 24px",
                         textAlign: "center",
+                        pointerEvents: 'none'
                     }}
                 >
                     <div
@@ -119,6 +129,7 @@ export default async function ArticlePage({ params }: Params) {
                             letterSpacing: "0.15em",
                             textTransform: "uppercase",
                             marginBottom: "32px",
+                            pointerEvents: 'auto'
                         }}
                     >
                         {article.category}
@@ -178,6 +189,13 @@ export default async function ArticlePage({ params }: Params) {
             >
                 {/* Main Content Column */}
                 <article>
+                    <Breadcrumbs 
+                        items={[
+                            { label: article.category, href: `/category/${article.category.toLowerCase().replace(/\s+/g, '-')}` },
+                            { label: article.title }
+                        ]} 
+                    />
+                    
                     <div
                         className="article-prose"
                         style={{ position: "relative" }}
@@ -198,36 +216,6 @@ export default async function ArticlePage({ params }: Params) {
 
                         <PortableTextRenderer value={article.body} />
                     </div>
-
-                    {/* Bottom Nav */}
-                    <footer
-                        style={{
-                            marginTop: "80px",
-                            paddingTop: "60px",
-                            borderTop: "1px solid var(--border-color)",
-                            textAlign: "center"
-                        }}
-                    >
-                        <Link
-                            href="/"
-                            style={{
-                                display: "inline-flex",
-                                alignItems: "center",
-                                gap: "12px",
-                                padding: "16px 32px",
-                                borderRadius: "var(--radius-full)",
-                                background: "var(--primary)",
-                                color: "white",
-                                textDecoration: "none",
-                                fontWeight: 800,
-                                fontSize: "0.95rem",
-                                transition: "all 0.3s ease",
-                            }}
-                            className="hover:scale-105"
-                        >
-                            <ArrowLeft size={20} /> Back to Library
-                        </Link>
-                    </footer>
                 </article>
 
                 {/* Sidebar Space */}
@@ -264,21 +252,22 @@ export default async function ArticlePage({ params }: Params) {
                         </div>
 
                         <nav style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                            {headings.map((heading: string, i: number) => (
-                                <div
-                                    key={i}
+                            {tocItems.map((item: any) => (
+                                <a
+                                    key={item.id}
+                                    href={`#${item.id}`}
                                     style={{
                                         fontSize: "0.9rem",
                                         fontWeight: 600,
                                         color: "var(--muted)",
                                         lineHeight: 1.4,
-                                        cursor: "pointer",
+                                        textDecoration: "none",
                                         transition: "color 0.2s ease",
                                     }}
                                     className="hover:text-[var(--accent)]"
                                 >
-                                    {heading}
-                                </div>
+                                    {item.text}
+                                </a>
                             ))}
                         </nav>
 
@@ -315,6 +304,53 @@ export default async function ArticlePage({ params }: Params) {
                         </div>
                     </div>
                 </aside>
+
+                {/* Related Articles & Bottom Nav (Full Width Row) */}
+                <div style={{ gridColumn: '1 / -1', marginTop: '40px' }}>
+                    {/* Related Articles Section */}
+                    {relatedArticles.length > 0 && (
+                        <div style={{ marginTop: '60px', paddingTop: '80px', borderTop: '1px solid var(--border-color)' }}>
+                            <h3 style={{ fontSize: '2.2rem', fontWeight: 800, marginBottom: '50px', letterSpacing: '-0.03em', textAlign: 'center' }}>
+                                Continue the Journey
+                            </h3>
+                            <div className="related-articles-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '32px' }}>
+                                {relatedArticles.map((ra: any) => (ra.slug && (
+                                    <ArticleCard key={ra.slug} article={ra} />
+                                )))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Bottom Nav */}
+                    <footer
+                        style={{
+                            marginTop: "100px",
+                            paddingBottom: "40px",
+                            textAlign: "center"
+                        }}
+                    >
+                        <Link
+                            href="/"
+                            style={{
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "12px",
+                                padding: "16px 32px",
+                                borderRadius: "var(--radius-full)",
+                                background: "var(--primary)",
+                                color: "white",
+                                textDecoration: "none",
+                                fontWeight: 800,
+                                fontSize: "0.95rem",
+                                transition: "all 0.3s ease",
+                            }}
+                            className="hover:scale-105"
+                        >
+                            <ArrowLeft size={20} /> Back to Library
+                        </Link>
+                    </footer>
+                </div>
+
             </main>
 
             <style>{`
@@ -323,8 +359,17 @@ export default async function ArticlePage({ params }: Params) {
                     grid-template-columns: 1fr !important;
                   }
                   .hidden { display: none !important; }
+                  .related-articles-grid {
+                    grid-template-columns: repeat(2, 1fr) !important;
+                  }
+                }
+                @media (max-width: 768px) {
+                  .related-articles-grid {
+                    grid-template-columns: 1fr !important;
+                  }
                 }
             `}</style>
-        </>
+
+        </div>
     );
 }

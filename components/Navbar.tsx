@@ -5,13 +5,15 @@ import Link from "next/link";
 import ThemeToggle from "./ThemeToggle";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Menu, X, History } from "lucide-react";
+import SearchDialog from "./SearchDialog";
 
 const navLinks = [
     { label: "Home", href: "/" },
-    { label: "Ancient Civilizations", href: "/category/ancient-civilizations" },
-    { label: "Empires", href: "/category/empires" },
-    { label: "War & Battles", href: "/category/war-and-battles" },
-    { label: "Archaeology", href: "/category/archaeology" },
+    { label: "Pre History", href: "/category/pre-history" },
+    { label: "Asian History", href: "/category/asian-history" },
+    { label: "European History", href: "/category/european-history" },
+    { label: "African History", href: "/category/african-history" },
+    { label: "American History", href: "/category/american-continent" },
 ];
 
 export default function Navbar() {
@@ -27,10 +29,9 @@ export default function Navbar() {
             const currentY = window.scrollY;
             const deltaY = currentY - lastScrollY.current;
 
-            // Close menu/search on scroll
+            // Close menu on scroll (optional, but keep search open if we manage it separately)
             if (Math.abs(deltaY) > 5) {
                 setMenuOpen(false);
-                setSearchOpen(false);
             }
 
             setOffsetY((prev) => {
@@ -66,7 +67,7 @@ export default function Navbar() {
         <>
             {/* Backdrop for outside click/touch */}
             <AnimatePresence>
-                {(menuOpen || searchOpen) && (
+                {menuOpen && (
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -85,6 +86,11 @@ export default function Navbar() {
                     />
                 )}
             </AnimatePresence>
+
+            <SearchDialog 
+                isOpen={searchOpen} 
+                onClose={() => setSearchOpen(false)} 
+            />
 
             {/* ── Scroll-reveal navbar ── */}
             <motion.nav
@@ -254,37 +260,6 @@ export default function Navbar() {
                         </button>
                     </div>
                 </div>
-
-                {/* Search Bar */}
-                <AnimatePresence>
-                    {searchOpen && (
-                        <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: "auto", opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: 0.2 }}
-                            style={{ overflow: "hidden", maxWidth: "1400px", margin: "0 auto" }}
-                        >
-                            <div style={{ paddingBottom: "16px" }}>
-                                <input
-                                    type="text"
-                                    placeholder="Search historical topics..."
-                                    autoFocus
-                                    style={{
-                                        width: "100%",
-                                        padding: "14px 20px",
-                                        borderRadius: "var(--radius-md)",
-                                        border: "1px solid var(--border-color)",
-                                        background: "var(--surface)",
-                                        color: "var(--foreground)",
-                                        fontSize: "1rem",
-                                        outline: "none",
-                                    }}
-                                />
-                            </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
 
                 {/* Mobile Menu */}
                 <AnimatePresence>

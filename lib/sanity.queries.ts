@@ -55,3 +55,17 @@ export const allCategoriesQuery = groq`
     icon,
   }
 `
+
+export const searchArticlesQuery = groq`
+  *[_type == "article" && (title match $searchQuery || excerpt match $searchQuery || pt::text(body) match $searchQuery)] | order(publishedAt desc) {
+    title,
+    "slug": slug.current,
+    excerpt,
+    "category": category->title,
+    "categorySlug": category->slug.current,
+    heroImage,
+    publishedAt,
+    readingTime,
+    featured,
+  }
+`

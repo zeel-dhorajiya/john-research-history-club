@@ -55,8 +55,8 @@ export default async function HomePage() {
           }}
           className="featured-grid"
         >
-          {featured.map((article: any) => (
-            <ArticleCard key={article.slug} article={article} overlay />
+          {featured.map((article: any, i: number) => (
+            <ArticleCard key={article.slug || `featured-${i}`} article={article} overlay />
           ))}
         </div>
       </section>
@@ -78,8 +78,8 @@ export default async function HomePage() {
             gap: "32px",
           }}
         >
-          {latest.map((article: any) => (
-            <ArticleCard key={article.slug} article={article} />
+          {latest.map((article: any, i: number) => (
+            <ArticleCard key={article.slug || `latest-${i}`} article={article} />
           ))}
         </div>
       </section>
@@ -104,7 +104,7 @@ export default async function HomePage() {
           className="categories-grid"
         >
           {categories.slice(0, 4).map((cat: any, index: number) => (
-            <CategoryCard key={cat.slug} category={cat} index={index} />
+            <CategoryCard key={cat.slug || `cat-${index}`} category={cat} index={index} />
           ))}
         </div>
       </section>

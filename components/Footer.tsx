@@ -9,11 +9,11 @@ const socialLinks = [
 
 const footerLinks = [
     { label: "Home", href: "/" },
-    { label: "Ancient Civilizations", href: "/category/ancient-civilizations" },
-    { label: "Empires", href: "/category/empires" },
-    { label: "War & Battles", href: "/category/war-and-battles" },
-    { label: "Archaeology", href: "/category/archaeology" },
-    { label: "Historical Figures", href: "/category/historical-figures" },
+    { label: "Pre History", href: "/category/pre-history" },
+    { label: "Asian History", href: "/category/asian-history" },
+    { label: "European History", href: "/category/european-history" },
+    { label: "African History", href: "/category/african-history" },
+    { label: "American History", href: "/category/american-continent" },
 ];
 
 export default function Footer() {

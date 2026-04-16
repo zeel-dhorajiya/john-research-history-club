@@ -161,7 +161,6 @@ export default function HeroVideo() {
                     border-radius: 40px;
                     overflow: hidden;
                     background: #000;
-                    box-shadow: var(--shadow-xl);
                     cursor: pointer;
                     height: var(--hero-height);
                 }
