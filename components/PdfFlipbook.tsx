@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Maximize, Minimize, AlertCircle } from "lucide-react";
 
 interface PdfFlipbookProps {
@@ -11,12 +11,14 @@ interface PdfFlipbookProps {
 export default function PdfFlipbook({ pdfUrl, title }: PdfFlipbookProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const pageCacheRef = useRef<Map<number, any>>(new Map());
 
   const [pdfDoc, setPdfDoc] = useState<any>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(0);
   const [zoom, setZoom] = useState<number>(1.2);
   const [loading, setLoading] = useState<boolean>(true);
+  const [pageRendering, setPageRendering] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
 
@@ -39,6 +41,7 @@ export default function PdfFlipbook({ pdfUrl, title }: PdfFlipbookProps) {
           cMapUrl: `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/cmaps/`,
           cMapPacked: true,
         });
+
         const pdf = await loadingTask.promise;
 
         if (isSubscribed) {
@@ -59,8 +62,52 @@ export default function PdfFlipbook({ pdfUrl, title }: PdfFlipbookProps) {
 
     return () => {
       isSubscribed = false;
+      pageCacheRef.current.clear();
     };
   }, [pdfUrl]);
+
+  const getPdfPage = useCallback(
+    async (pageNum: number) => {
+      if (!pdfDoc) return null;
+      if (pageCacheRef.current.has(pageNum)) {
+        return pageCacheRef.current.get(pageNum);
+      }
+      try {
+        const page = await pdfDoc.getPage(pageNum);
+        pageCacheRef.current.set(pageNum, page);
+        return page;
+      } catch (e) {
+        return null;
+      }
+    },
+    [pdfDoc]
+  );
+
+  const prefetchPagesWindow = useCallback(
+    (centerPage: number) => {
+      if (!pdfDoc) return;
+      const start = Math.max(1, centerPage - 2);
+      const end = Math.min(totalPages, centerPage + 8);
+
+      for (let p = start; p <= end; p++) {
+        if (!pageCacheRef.current.has(p)) {
+          pdfDoc
+            .getPage(p)
+            .then((page: any) => {
+              pageCacheRef.current.set(p, page);
+            })
+            .catch(() => {});
+        }
+      }
+
+      for (const [key] of pageCacheRef.current.entries()) {
+        if (key < centerPage - 5 || key > centerPage + 12) {
+          pageCacheRef.current.delete(key);
+        }
+      }
+    },
+    [pdfDoc, totalPages]
+  );
 
   useEffect(() => {
     if (!pdfDoc || !canvasRef.current) return;
@@ -69,7 +116,13 @@ export default function PdfFlipbook({ pdfUrl, title }: PdfFlipbookProps) {
 
     async function renderPage() {
       try {
-        const page = await pdfDoc.getPage(currentPage);
+        setPageRendering(true);
+        const page = await getPdfPage(currentPage);
+        if (!page) {
+          setPageRendering(false);
+          return;
+        }
+
         const canvas = canvasRef.current;
         if (!canvas) return;
 
@@ -88,7 +141,13 @@ export default function PdfFlipbook({ pdfUrl, title }: PdfFlipbookProps) {
 
         renderTask = page.render(renderContext);
         await renderTask.promise;
+        setPageRendering(false);
+
+        setTimeout(() => {
+          prefetchPagesWindow(currentPage);
+        }, 50);
       } catch (err: any) {
+        setPageRendering(false);
         if (err?.name !== "RenderingCancelledException") {
           console.error("Page render error:", err);
         }
@@ -102,7 +161,7 @@ export default function PdfFlipbook({ pdfUrl, title }: PdfFlipbookProps) {
         renderTask.cancel();
       }
     };
-  }, [pdfDoc, currentPage, zoom]);
+  }, [pdfDoc, currentPage, zoom, getPdfPage, prefetchPagesWindow]);
 
   const handlePrev = () => {
     if (currentPage > 1) {
@@ -328,7 +387,7 @@ export default function PdfFlipbook({ pdfUrl, title }: PdfFlipbookProps) {
                 margin: "0 auto 16px",
               }}
             />
-            <span>Loading pages onto Canvas...</span>
+            <span>Loading page 1 onto Canvas...</span>
           </div>
         )}
 
@@ -347,6 +406,8 @@ export default function PdfFlipbook({ pdfUrl, title }: PdfFlipbookProps) {
             borderRadius: "8px",
             maxWidth: "100%",
             height: "auto",
+            opacity: pageRendering ? 0.6 : 1,
+            transition: "opacity 0.15s ease",
           }}
         />
       </div>
