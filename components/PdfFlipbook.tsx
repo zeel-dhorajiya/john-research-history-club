@@ -29,13 +29,15 @@ export default function PdfFlipbook({ pdfUrl, title }: PdfFlipbookProps) {
         setError(null);
 
         const pdfjs = await import("pdfjs-dist");
-        pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+        pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
         const loadingTask = pdfjs.getDocument({
           url: pdfUrl,
           disableAutoFetch: true,
           disableStream: false,
           rangeChunkSize: 65536 * 2,
+          cMapUrl: `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/cmaps/`,
+          cMapPacked: true,
         });
         const pdf = await loadingTask.promise;
 
