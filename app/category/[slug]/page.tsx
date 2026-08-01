@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { client } from "@/lib/sanity.client";
 import { articlesByCategoryQuery, allCategoriesQuery } from "@/lib/sanity.queries";
-import { getFallbackArticles, getFallbackCategories } from "@/lib/sanity.fallback";
+
 import ArticleCard from "@/components/ArticleCard";
 import Image from "next/image";
 import Link from "next/link";
@@ -14,8 +14,7 @@ interface Params {
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
     const { slug } = await params;
-    let categories = await client.fetch(allCategoriesQuery);
-    if (categories.length === 0) categories = getFallbackCategories();
+    const categories = await client.fetch(allCategoriesQuery);
 
     const category = categories.find((c: any) => c.slug === slug);
 
@@ -26,25 +25,17 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     };
 }
 
-export async function generateStaticParams() {
-    let categories = await client.fetch(allCategoriesQuery);
-    if (categories.length === 0) categories = getFallbackCategories();
-    return categories.map((c: any) => ({ slug: c.slug }));
-}
+
 
 export default async function CategoryPage({ params }: Params) {
     const { slug } = await params;
-    let categories = await client.fetch(allCategoriesQuery);
-    if (categories.length === 0) categories = getFallbackCategories();
+    const categories = await client.fetch(allCategoriesQuery);
 
     const category = categories.find((c: any) => c.slug === slug);
 
     if (!category) notFound();
 
-    let categoryArticles = await client.fetch(articlesByCategoryQuery, { categorySlug: slug });
-    if (categoryArticles.length === 0) {
-        categoryArticles = getFallbackArticles().filter(a => a.categorySlug === slug);
-    }
+    const categoryArticles = await client.fetch(articlesByCategoryQuery, { categorySlug: slug });
 
     // Fallback banner logic
     const banner = "/hero_ancient_egypt.png";
@@ -240,6 +231,7 @@ export default async function CategoryPage({ params }: Params) {
                                 <Link
                                     key={c.slug}
                                     href={`/category/${c.slug}`}
+                                    prefetch={false}
                                     className="cat-pill-link"
                                 >
                                     {c.title}

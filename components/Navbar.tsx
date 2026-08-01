@@ -194,6 +194,7 @@ export default function Navbar() {
                             <Link
                                 key={link.href}
                                 href={link.href}
+                                prefetch={false}
                                 style={{
                                     padding: "8px 14px",
                                     borderRadius: "var(--radius-full)",
@@ -285,6 +286,7 @@ export default function Navbar() {
                                     <Link
                                         key={link.href}
                                         href={link.href}
+                                        prefetch={false}
                                         onClick={() => setMenuOpen(false)}
                                         style={{
                                             padding: "12px 16px",

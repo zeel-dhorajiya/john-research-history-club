@@ -1,0 +1,33 @@
+# Dependency directories
+node_modules/
+bower_components/
+
+# Build artifacts
+.next/
+dist/
+build/
+out/
+*.tsbuildinfo
+
+# Git and OS metadata
+.git/
+.svn/
+.hg/
+.DS_Store
+Thumbs.db
+
+# Environment and secrets
+.env*
+*.local
+*.pem
+*.key
+
+# Public/Static assets (usually too many files, skip for graph)
+public/
+assets/
+static/
+
+# Config files (optional, keeps graph clean)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml

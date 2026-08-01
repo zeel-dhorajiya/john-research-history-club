@@ -19,7 +19,7 @@ export default function ArticleCard({
     overlay = false,
 }: ArticleCardProps) {
     const imageUrl = (article.heroImage && typeof article.heroImage === 'object')
-        ? urlFor(article.heroImage).url()
+        ? urlFor(article.heroImage).width(1200).auto('format').quality(80).url()
         : (article.image || article.heroImage || null);
 
     // Overlay mode (as seen in the mockup's featured section)
@@ -32,6 +32,7 @@ export default function ArticleCard({
             >
                 <Link
                     href={`/article/${article.slug}`}
+                    prefetch={false}
                     className="group article-card-overlay"
                     style={{
                         display: "block",
@@ -54,6 +55,7 @@ export default function ArticleCard({
                                 src={imageUrl}
                                 alt={article.title}
                                 fill
+                                priority={true}
                                 style={{ objectFit: "cover", opacity: 0.9 }}
                                 sizes="(max-width: 768px) 100vw, 25vw"
                             />
@@ -133,6 +135,7 @@ export default function ArticleCard({
             >
                 <Link
                     href={`/article/${article.slug}`}
+                    prefetch={false}
                     style={{
                         display: "block",
                         position: "relative",
@@ -156,6 +159,7 @@ export default function ArticleCard({
                                 src={imageUrl}
                                 alt={article.title}
                                 fill
+                                priority={true}
                                 style={{ objectFit: "cover", opacity: 0.8 }}
                                 sizes="(max-width: 1200px) 100vw, 50vw"
                             />
@@ -257,6 +261,7 @@ export default function ArticleCard({
         >
             <Link
                 href={`/article/${article.slug}`}
+                prefetch={false}
                 style={{
                     display: "flex",
                     flexDirection: "column",

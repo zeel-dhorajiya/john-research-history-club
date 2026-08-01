@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { client } from "@/lib/sanity.client";
 import { articleBySlugQuery, allArticlesQuery } from "@/lib/sanity.queries";
-import { getFallbackArticles } from "@/lib/sanity.fallback";
+
 import ReadingProgressBar from "@/components/ReadingProgressBar";
 import PortableTextRenderer from "@/components/PortableTextRenderer";
 import Image from "next/image";
@@ -31,29 +31,13 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     };
 }
 
-export async function generateStaticParams() {
-    let articles = await client.fetch(allArticlesQuery);
-    if (articles.length === 0) articles = getFallbackArticles();
-    return articles.map((a: any) => ({ slug: a.slug }));
-}
+
 
 export default async function ArticlePage({ params }: Params) {
     const { slug } = await params;
     let article = await client.fetch(articleBySlugQuery, { slug });
 
-    if (!article) {
-        article = getFallbackArticles().find(a => a.slug === slug);
-        // Map local content to simple blocks for the renderer
-        if (article) {
-            article.body = [
-                {
-                    _type: 'block',
-                    style: 'normal',
-                    children: [{ _type: 'span', text: 'This is a fallback preview. Create content in Sanity to see the full article.' }]
-                }
-            ];
-        }
-    }
+
 
     if (!article) notFound();
 
@@ -62,7 +46,7 @@ export default async function ArticlePage({ params }: Params) {
         .filter((a: any) => a.slug !== slug)
         .slice(0, 3);
 
-    const heroImageUrl = article.heroImage ? urlFor(article.heroImage).url() : null;
+    const heroImageUrl = article.heroImage ? urlFor(article.heroImage).width(1920).auto('format').quality(85).url() : null;
 
     // Extract headings for Table of Contents from Portable Text
     const tocItems = article.body?.filter((block: any) =>
@@ -97,6 +81,7 @@ export default async function ArticlePage({ params }: Params) {
                             src={heroImageUrl}
                             alt={article.title}
                             className="hero-interactive-image"
+                            priority={true}
                         />
                     </div>
                 )}

@@ -142,10 +142,11 @@ export default function Footer() {
                             Library
                         </h4>
                         <nav style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                            {footerLinks.map((link) => (
+                             {footerLinks.map((link) => (
                                 <Link
                                     key={link.href}
                                     href={link.href}
+                                    prefetch={false}
                                     style={{
                                         fontSize: "1rem",
                                         color: "rgba(255,255,255,0.5)",

@@ -27,6 +27,7 @@ export default function Breadcrumbs({ items }: BreadcrumbsProps) {
         >
             <Link 
                 href="/" 
+                prefetch={false}
                 style={{ 
                     display: 'flex', 
                     alignItems: 'center', 
@@ -46,6 +47,7 @@ export default function Breadcrumbs({ items }: BreadcrumbsProps) {
                     {item.href ? (
                         <Link 
                             href={item.href}
+                            prefetch={false}
                             style={{ 
                                 color: 'var(--muted)', 
                                 textDecoration: 'none',

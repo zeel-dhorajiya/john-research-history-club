@@ -12,6 +12,7 @@ interface InteractiveImageProps {
     aspectRatio?: string;
     className?: string;
     fill?: boolean;
+    priority?: boolean;
 }
 
 export default function InteractiveImage({
@@ -21,6 +22,7 @@ export default function InteractiveImage({
     aspectRatio = "16/9",
     className = "",
     fill = false,
+    priority = false,
 }: InteractiveImageProps) {
     const [isOpen, setIsOpen] = useState(false);
 
@@ -58,6 +60,7 @@ export default function InteractiveImage({
                     src={src}
                     alt={alt}
                     fill
+                    priority={priority}
                     style={{ objectFit: 'cover' }}
                     sizes="(max-width: 1200px) 100vw, 800px"
                     className="transition-transform duration-700 group-hover:scale-110"

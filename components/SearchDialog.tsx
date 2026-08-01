@@ -234,6 +234,7 @@ export default function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
                                         <Link
                                             key={result.slug || `search-result-${index}`}
                                             href={`/article/${result.slug}`}
+                                            prefetch={false}
                                             onClick={onClose}
                                             style={{
                                                 display: "flex",

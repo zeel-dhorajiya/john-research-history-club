@@ -5,22 +5,95 @@ import NewsletterForm from "@/components/NewsletterForm";
 import { client } from "@/lib/sanity.client";
 import { allArticlesQuery, allCategoriesQuery } from "@/lib/sanity.queries";
 import { SanityArticle, SanityCategory } from "@/lib/types";
-import { getFallbackArticles, getFallbackCategories } from "@/lib/sanity.fallback";
+
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, History } from "lucide-react";
 
 export const revalidate = 60; // Revalidate every minute
 
 export default async function HomePage() {
-  let articles: SanityArticle[] = await client.fetch(allArticlesQuery);
-  let categories: SanityCategory[] = await client.fetch(allCategoriesQuery);
+  let articles: SanityArticle[] = [];
+  let categories: SanityCategory[] = [];
 
-  // Fallback to dummy data if Sanity is empty
-  if (articles.length === 0) {
-    articles = getFallbackArticles();
+  try {
+    articles = await client.fetch(allArticlesQuery);
+    categories = await client.fetch(allCategoriesQuery);
+  } catch (error) {
+    console.error("Failed to fetch data from Sanity CMS:", error);
   }
-  if (categories.length === 0) {
-    categories = getFallbackCategories();
+
+  // If no data available, render a premium empty placeholder page
+  if (articles.length === 0 && categories.length === 0) {
+    return (
+      <div
+        style={{
+          minHeight: "75vh",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          textAlign: "center",
+          padding: "80px 24px",
+          background: "var(--background)",
+          color: "var(--foreground)",
+        }}
+      >
+        <div
+          style={{
+            width: 64,
+            height: 64,
+            borderRadius: "16px",
+            background: "rgba(200, 169, 106, 0.1)",
+            border: "1px solid rgba(200, 169, 106, 0.2)",
+            color: "var(--accent)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            marginBottom: "32px",
+          }}
+        >
+          <History size={32} />
+        </div>
+        <h1
+          style={{
+            fontSize: "clamp(1.75rem, 5vw, 2.5rem)",
+            fontWeight: 800,
+            letterSpacing: "-0.02em",
+            marginBottom: "16px",
+          }}
+        >
+          The Archives are Silent
+        </h1>
+        <p
+          style={{
+            fontSize: "1.05rem",
+            color: "var(--muted)",
+            maxWidth: "460px",
+            lineHeight: 1.7,
+            marginBottom: "32px",
+          }}
+        >
+          We are currently unable to retrieve the historical archives. The library databases might be down or undergoing restoration.
+        </p>
+        <Link
+          href="/"
+          prefetch={false}
+          style={{
+            display: "inline-block",
+            padding: "12px 28px",
+            borderRadius: "var(--radius-full)",
+            background: "var(--accent)",
+            color: "white",
+            textDecoration: "none",
+            cursor: "pointer",
+            fontWeight: 700,
+            fontSize: "0.9rem",
+          }}
+        >
+          Reconnect
+        </Link>
+      </div>
+    );
   }
 
   let featured = articles.filter((a) => (a as any).featured).slice(0, 4);
@@ -243,6 +316,7 @@ function SectionHeader({
       {!center && href && (
         <Link
           href={href}
+          prefetch={false}
           style={{
             fontSize: "0.9rem",
             fontWeight: 700,

@@ -31,6 +31,7 @@ export default function CategoryCard({ category, index = 0 }: CategoryCardProps)
         >
             <Link
                 href={`/category/${category.slug}`}
+                prefetch={false}
                 style={{
                     display: "flex",
                     flexDirection: "column",
