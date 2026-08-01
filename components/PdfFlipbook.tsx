@@ -31,7 +31,12 @@ export default function PdfFlipbook({ pdfUrl, title }: PdfFlipbookProps) {
         const pdfjs = await import("pdfjs-dist");
         pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
-        const loadingTask = pdfjs.getDocument(pdfUrl);
+        const loadingTask = pdfjs.getDocument({
+          url: pdfUrl,
+          disableAutoFetch: true,
+          disableStream: false,
+          rangeChunkSize: 65536 * 2,
+        });
         const pdf = await loadingTask.promise;
 
         if (isSubscribed) {
@@ -152,14 +157,18 @@ export default function PdfFlipbook({ pdfUrl, title }: PdfFlipbookProps) {
         style={{
           width: "100%",
           padding: "16px 24px",
-          background: "rgba(0, 0, 0, 0.6)",
+          background: "rgba(12, 15, 23, 0.92)",
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
           borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
           flexWrap: "wrap",
           gap: "12px",
-          zIndex: 10,
+          position: "sticky",
+          top: 0,
+          zIndex: 20,
         }}
       >
         <h2

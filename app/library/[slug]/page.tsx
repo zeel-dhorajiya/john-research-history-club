@@ -28,7 +28,7 @@ export default async function BookReaderPage({ params }: { params: Promise<{ slu
       style={{
         maxWidth: "1250px",
         margin: "0 auto",
-        padding: "40px 24px 100px",
+        padding: "120px 24px 100px",
       }}
     >
       <Breadcrumbs

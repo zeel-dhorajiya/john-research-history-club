@@ -16,7 +16,7 @@ export default function LibraryPage() {
       style={{
         maxWidth: "1250px",
         margin: "0 auto",
-        padding: "40px 24px 120px",
+        padding: "120px 24px 120px",
       }}
     >
       <Breadcrumbs items={[{ label: "Library", href: "/library" }]} />
