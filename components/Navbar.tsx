@@ -9,6 +9,7 @@ import SearchDialog from "./SearchDialog";
 
 const navLinks = [
     { label: "Home", href: "/" },
+    { label: "Library", href: "/library" },
     { label: "Pre History", href: "/category/pre-history" },
     { label: "Asian History", href: "/category/asian-history" },
     { label: "European History", href: "/category/european-history" },

@@ -5,9 +5,11 @@ import NewsletterForm from "@/components/NewsletterForm";
 import { client } from "@/lib/sanity.client";
 import { allArticlesQuery, allCategoriesQuery } from "@/lib/sanity.queries";
 import { SanityArticle, SanityCategory } from "@/lib/types";
+import { getFeaturedBooks } from "@/lib/books";
+import BookCard from "@/components/BookCard";
 
 import Link from "next/link";
-import { ArrowRight, History } from "lucide-react";
+import { ArrowRight, History, BookOpen } from "lucide-react";
 
 export const revalidate = 60; // Revalidate every minute
 
@@ -131,6 +133,53 @@ export default async function HomePage() {
           {featured.map((article: any, i: number) => (
             <ArticleCard key={article.slug || `featured-${i}`} article={article} overlay />
           ))}
+        </div>
+      </section>
+
+      <section
+        id="books-library"
+        style={{
+          maxWidth: "1250px",
+          margin: "120px auto 0",
+          padding: "0 24px",
+        }}
+      >
+        <SectionHeader title="Archival Books & Maps" href="/library" />
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+            gap: "32px",
+            marginBottom: "40px",
+          }}
+        >
+          {getFeaturedBooks().map((book) => (
+            <BookCard key={book.id} book={book} />
+          ))}
+        </div>
+
+        <div style={{ textAlign: "center" }}>
+          <Link
+            href="/library"
+            prefetch={false}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "10px",
+              padding: "14px 32px",
+              borderRadius: "var(--radius-full, 9999px)",
+              background: "rgba(200, 169, 106, 0.12)",
+              border: "1px solid rgba(200, 169, 106, 0.3)",
+              color: "var(--accent, #c8a96a)",
+              fontWeight: 800,
+              fontSize: "0.95rem",
+              textDecoration: "none",
+              transition: "all 0.2s ease",
+            }}
+          >
+            Explore More Books <ArrowRight size={18} />
+          </Link>
         </div>
       </section>
 

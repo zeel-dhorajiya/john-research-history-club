@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { client } from "@/lib/sanity.client";
 import { articleBySlugQuery, allArticlesQuery } from "@/lib/sanity.queries";
+import { getFallbackArticles } from "@/lib/sanity.fallback";
 
 import ReadingProgressBar from "@/components/ReadingProgressBar";
 import PortableTextRenderer from "@/components/PortableTextRenderer";

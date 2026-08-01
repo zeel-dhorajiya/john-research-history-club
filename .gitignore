@@ -45,6 +45,7 @@ graphify-out/
 
 # resources / large media
 01 Resources/
+public/books/
 
 # github workflows
 .github/workflows/
