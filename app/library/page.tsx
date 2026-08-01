@@ -44,7 +44,7 @@ export default function LibraryPage() {
             marginBottom: "16px",
           }}
         >
-          <BookOpen size={16} /> Archival Collection
+          <BookOpen size={16} /> Historical Collection
         </div>
 
         <h1
@@ -75,7 +75,7 @@ export default function LibraryPage() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
+          gridTemplateColumns: "repeat(auto-fill, minmax(280px, 340px))",
           gap: "32px",
         }}
       >

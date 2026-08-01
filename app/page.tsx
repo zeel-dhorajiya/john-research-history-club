@@ -144,12 +144,12 @@ export default async function HomePage() {
           padding: "0 24px",
         }}
       >
-        <SectionHeader title="Archival Books & Maps" href="/library" />
+        <SectionHeader title="Historical Books & Maps" href="/library" />
 
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fill, minmax(280px, 340px))",
             gap: "32px",
             marginBottom: "40px",
           }}

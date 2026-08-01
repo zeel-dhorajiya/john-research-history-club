@@ -9,6 +9,8 @@ export default function BookCard({ book }: { book: Book }) {
   return (
     <div
       style={{
+        width: "100%",
+        maxWidth: "340px",
         background: "var(--card-bg, rgba(255,255,255,0.03))",
         border: "1px solid var(--border, rgba(255,255,255,0.08))",
         borderRadius: "16px",
