@@ -10,5 +10,6 @@
 - **Continuous Rule Updates**:
   - For every prompt, evaluate if there is a required or beneficial behavior constraint or rule to note. If so, immediately propose adding it to this instruction file.
   - When the user says "keep in mind" or "remember this", locate all active instruction files (such as `AGENTS.md`) and immediately update them with the requested instructions.
+- **No Unrequested Git Push**: Do NOT run `git push` or push changes to remote repositories until explicitly requested by the user.
 - **Response Format Rules**:
   - Always write implementation plans and task specs using the template defined in `RESPONSE_TEMPLATE.md`.

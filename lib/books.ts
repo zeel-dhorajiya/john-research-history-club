@@ -20,7 +20,7 @@ export const booksData: Book[] = [
     author: "DK Publishing",
     description: "Explore the human story through world history maps. Trace the rise and fall of empires, major trade routes, battlefields, and civilizational shifts across millennia.",
     coverImage: "/hero_ancient_egypt.png",
-    pdfUrl: "/books/history-of-the-world-map-by-map.pdf",
+    pdfUrl: "https://cdn.sanity.io/files/tip17aoh/production/06c7f72c47ae10aa7a73b9ac11f105e9a6a6df55.pdf",
     pagesCount: 440,
     featured: true,
     category: "World History",
